@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"github.com/twinj/uuid"
 )
 
 var YouTubeIDregex = regexp.MustCompile("(?:youtube(?:-nocookie)?\\.com\\/(?:[^\\/\n\\s]+\\/\\S+\\/|(?:v|e(?:mbed)?)\\/|\\S*?[?&]v=)|youtu\\.be\\/)([a-zA-Z0-9_-]{11})(?:\\&|\\?|$)")
@@ -50,10 +51,12 @@ type Tag struct {
 func tomHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	requestXRay := uuid.NewV4()
+	w.Header().Set("Request-X-Rat", requestXRay.String())
+
 	switch {
 	case "GET" == r.Method || "POST" == r.Method:
-		result := make(map[string]interface{})
-
+		result := make(map[string]int)
 		reuesrUrl := r.FormValue("url")
 		validURLStr := govalidator.IsRequestURL(reuesrUrl)
 		matchID := ""
@@ -79,16 +82,13 @@ func tomHandler(w http.ResponseWriter, r *http.Request) {
 
 			} else {
 				if debug > 1 {
-					esult["msg"] = "YouTube ID is not present in the URL"
-				
+					fmt.Println("Request:", requestXRay.String(), "YouTube ID is not present in the URL")
+				}
 			}
-
 		} else {
 			if debug > 1 {
-				result["error"] = "1"
-				esult["msg"] = "Invalid URL String"
-			
-
+				fmt.Println("Request:", requestXRay.String(), "Has Invalid URL")
+			}
 		}
 
 		j, _ := json.MarshalIndent(result, "", "  ")

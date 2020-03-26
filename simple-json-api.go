@@ -66,8 +66,7 @@ func tomHandler(w http.ResponseWriter, r *http.Request) {
 				row := DBCon.QueryRow("SELECT videoid, title, rated FROM videos WHERE videoid = ?", matchID)
 				err := row.Scan(&tag.VideoID, &tag.Title, &tag.Rated)
 				if err != nil {
-					result["error"] = "1"
-					result["msg"] = err.Error()
+					fmt.Println(err.Error())
 					return
 				}
 
@@ -75,18 +74,20 @@ func tomHandler(w http.ResponseWriter, r *http.Request) {
 
 				if tag.Rated > 60 {
 					result["nudity"] = 1000
-					result["ytid"] = matchID
 
 				}
 
 			} else {
-				result["error"] = "1"
-				result["msg"] = "YouTube ID is not present in the URL"
+				if debug > 1 {
+					esult["msg"] = "YouTube ID is not present in the URL"
+				
 			}
 
 		} else {
-			result["error"] = "1"
-			result["msg"] = "Invalid URL String"
+			if debug > 1 {
+				result["error"] = "1"
+				esult["msg"] = "Invalid URL String"
+			
 
 		}
 
